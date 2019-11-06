@@ -7,6 +7,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
+const SensorDiscoveryExchange = "SensorDiscovery"
+
 func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
 	conn, err := amqp.Dial(url)
 	failOnError(err, "Failed to establish connection to the message broker")

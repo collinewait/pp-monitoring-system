@@ -36,14 +36,18 @@ func main() {
 
 	dataQueue := qutils.GetQueue(*name, ch) // we need to do this step even when we are not going to writing to the queue directly. Declaring the queue here we can be sure that rabbit has set it up properly and it will be ready for us to use
 
-	msg := amqp.Publishing{Body: []byte(*name)}
-	ch.Publish(
-		"amq.fanout",
+	publishQueueName(ch)
+
+	discoveryQueue := qutils.GetQueue("", ch)
+	ch.QueueBind(
+		discoveryQueue.Name,
 		"",
+		qutils.SensorDiscoveryExchange,
 		false,
-		false,
-		msg,
+		nil,
 	)
+
+	go listenForDiscoveryRequests(discoveryQueue.Name, ch)
 
 	/*
 		duration object(dur) describes the time between each signal
@@ -82,6 +86,33 @@ func main() {
 		)
 		log.Printf("Reading sent. Value: %v\n", value)
 	}
+}
+
+func listenForDiscoveryRequests(name string, ch *amqp.Channel) {
+	msgs, _ := ch.Consume(
+		name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	for range msgs {
+		publishQueueName(ch)
+	}
+}
+
+func publishQueueName(ch *amqp.Channel) {
+	msg := amqp.Publishing{Body: []byte(*name)}
+	ch.Publish(
+		"amq.fanout",
+		"",
+		false,
+		false,
+		msg,
+	)
 }
 
 func calcValue() {
