@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/collinewait/pp-monitoring-system/src/distributed/dto"
+	"github.com/collinewait/pp-monitoring-system/src/distributed/qutils"
+	"github.com/streadway/amqp"
 )
 
 var url = "amqp://guest:guest@localhost:5672"
@@ -27,6 +29,12 @@ var nom = (*max-*min)/2 + *min             // holds the nominal value of the sen
 
 func main() {
 	flag.Parse()
+
+	conn, ch := qutils.GetChannel(url)
+	defer conn.Close()
+	defer ch.Close()
+
+	dataQueue := qutils.GetQueue(*name, ch) // we need to do this step even when we are not going to writing to the queue directly. Declaring the queue here we can be sure that rabbit has set it up properly and it will be ready for us to use
 
 	/*
 		duration object(dur) describes the time between each signal
@@ -50,6 +58,18 @@ func main() {
 		}
 		buf.Reset()
 		enc.Encode(reading)
+
+		msg := amqp.Publishing{
+			Body: buf.Bytes(),
+		}
+
+		ch.Publish(
+			"", // using the default exchange
+			dataQueue.Name,
+			false,
+			false,
+			msg,
+		)
 		log.Printf("Reading sent. Value: %v\n", value)
 	}
 }
