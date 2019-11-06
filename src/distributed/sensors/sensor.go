@@ -12,6 +12,8 @@ import (
 	"github.com/collinewait/pp-monitoring-system/src/distributed/dto"
 )
 
+var url = "amqp://guest:guest@localhost:5672"
+
 var name = flag.String("name", "sensor", "name of the sensor")
 var freq = flag.Uint("freq", 5, "update frequency in cycles/sec")
 var max = flag.Float64("max", 5., "maximum value for generated readings")
