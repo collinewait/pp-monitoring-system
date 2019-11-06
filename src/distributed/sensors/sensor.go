@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/gob"
 	"flag"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/collinewait/pp-monitoring-system/src/distributed/dto"
 )
 
 var name = flag.String("name", "sensor", "name of the sensor")
@@ -32,8 +36,18 @@ func main() {
 
 	signal := time.Tick(dur) // creates a channel that gets triggered at regular intervals that equals the duration created
 
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+
 	for range signal {
 		calcValue()
+		reading := dto.SensorMessage{
+			Name:      *name,
+			Value:     value,
+			Timestamp: time.Now(),
+		}
+		buf.Reset()
+		enc.Encode(reading)
 		log.Printf("Reading sent. Value: %v\n", value)
 	}
 }
