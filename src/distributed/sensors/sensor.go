@@ -34,11 +34,11 @@ func main() {
 	defer conn.Close()
 	defer ch.Close()
 
-	dataQueue := qutils.GetQueue(*name, ch) // we need to do this step even when we are not going to writing to the queue directly. Declaring the queue here we can be sure that rabbit has set it up properly and it will be ready for us to use
+	dataQueue := qutils.GetQueue(*name, ch, false) // we need to do this step even when we are not going to writing to the queue directly. Declaring the queue here we can be sure that rabbit has set it up properly and it will be ready for us to use
 
 	publishQueueName(ch)
 
-	discoveryQueue := qutils.GetQueue("", ch)
+	discoveryQueue := qutils.GetQueue("", ch, true)
 	ch.QueueBind(
 		discoveryQueue.Name,
 		"",
