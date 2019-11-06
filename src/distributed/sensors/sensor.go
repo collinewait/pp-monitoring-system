@@ -66,6 +66,7 @@ func main() {
 			Timestamp: time.Now(),
 		}
 		buf.Reset()
+		enc = gob.NewEncoder(buf) // the encoder needs to be reused every time it is going to be reused
 		enc.Encode(reading)
 
 		msg := amqp.Publishing{
