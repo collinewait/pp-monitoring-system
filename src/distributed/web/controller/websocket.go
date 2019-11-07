@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/gob"
+	"log"
 	"net/http"
 	"sync"
 
@@ -82,7 +83,11 @@ func (wsc *websocketController) listenForSources() {
 	)
 
 	for msg := range msgs {
-		sensor, _ := model.GetSensorByName(string(msg.Body))
+		sensor, err := model.GetSensorByName(string(msg.Body))
+
+		if err != nil {
+			log.Println(err.Error())
+		}
 		wsc.sendMessage(message{
 			Type: "source",
 			Data: sensor,

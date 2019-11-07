@@ -1,5 +1,7 @@
 package model
 
+import "log"
+
 type Sensor struct {
 	Name         string  `json:"name"`
 	SerialNo     string  `json:"serialNo"`
@@ -19,6 +21,10 @@ func GetSensorByName(name string) (Sensor, error) {
 	row := db.QueryRow(q, name)
 	err := row.Scan(&result.Name, &result.SerialNo, &result.UnitType,
 		&result.MinSafeValue, &result.MaxSafeValue)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	return result, err
 }
