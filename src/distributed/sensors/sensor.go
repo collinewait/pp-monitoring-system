@@ -24,11 +24,14 @@ var stepSize = flag.Float64("step", 0.1, "maximum allowed change per measure")
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-var value = r.Float64()*(*max-*min) + *min // creates a random value between max and min starting somewhere within permissible range
-var nom = (*max-*min)/2 + *min             // holds the nominal value of the sensor
+var value float64
+var nom float64
 
 func main() {
 	flag.Parse()
+
+	value = r.Float64()*(*max-*min) + *min // creates a random value between max and min starting somewhere within permissible range
+	nom = (*max-*min)/2 + *min             // holds the nominal value of the sensor
 
 	conn, ch := qutils.GetChannel(url)
 	defer conn.Close()
