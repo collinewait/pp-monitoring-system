@@ -2,13 +2,14 @@ package datamanager
 
 import (
 	"errors"
+	"log"
 
 	"github.com/collinewait/pp-monitoring-system/src/distributed/dto"
 )
 
 var sensors map[string]int
 
-func SaveReader(reading *dto.SensorMessage) error {
+func SaveReading(reading *dto.SensorMessage) error {
 	if sensors[reading.Name] == 0 {
 		getSensors()
 	}
@@ -35,8 +36,12 @@ func getSensors() {
 		FROM sensor
 	`
 
-	rows, _ := db.Query(q)
+	rows, err := db.Query(q)
 
+	if err != nil {
+		log.Println(err.Error())
+	}
+	
 	for rows.Next() {
 		var id int
 		var name string
