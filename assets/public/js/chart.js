@@ -65,19 +65,30 @@ function createChart(parentNode, data) {
       }
     ]
   });
-  const chart = $("." + data.name).CanvasJSChart();
+
+  let chart = $("." + data.name)[0];
+  chart.dataset["minSafeValue"] = data.minSafeValue;
+  chart.dataset["maxSafeValue"] = data.maxSafeValue;
+}
+
+function updateChart(msg) {
+  const node = $("." + msg.Name);
+  if (node.length == 0) return;
+
+  const chart = node.CanvasJSChart();
   const pts = chart.options.data[0].dataPoints;
   const range = chart.options.data[1].dataPoints;
-  setInterval(function() {
-    pts.push({ x: new Date(), y: Math.random() * (15.3 - 15.1) + 15.1 });
-    while (pts.length > 20) {
-      pts.shift();
-    }
-    range[0] = { x: pts[0].x, y: [data.minSafeValue, data.maxSafeValue] };
-    range[1] = {
-      x: pts[pts.length - 1].x,
-      y: [data.minSafeValue, data.maxSafeValue]
-    };
-    chart.render();
-  }, 500);
+  const minSafeValue = parseFloat(node[0].dataset["minSafeValue"]);
+  const maxSafeValue = parseFloat(node[0].dataset["maxSafeValue"]);
+
+  pts.push({ x: new Date(msg.Timestamp), y: msg.Value });
+  while (pts.length > 20) {
+    pts.shift();
+  }
+  range[0] = { x: pts[0].x, y: [minSafeValue, maxSafeValue] };
+  range[1] = {
+    x: pts[pts.length - 1].x,
+    y: [minSafeValue, maxSafeValue]
+  };
+  chart.render();
 }
